@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "linux-performance-doctor"
+version = "0.1.0"
+description = "Standalone, read-only Linux system diagnostic CLI in Python with modular collectors and structured JSON output."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+authors = [
+  { name = "kingpinisroot" },
+]
+keywords = [
+  "linux",
+  "diagnostics",
+  "performance",
+  "system-monitoring",
+  "cli",
+  "read-only",
+]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Intended Audience :: System Administrators",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: System :: Monitoring",
+  "Topic :: System :: Systems Administration",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+]
+
+# NOTE: `[project.scripts]` will be wired to the verified CLI entry point
+# when the existing Linux Performance Doctor source code is imported.
+
+[project.urls]
+Homepage = "https://github.com/kingpinisroot/linux-performance-doctor"
+Repository = "https://github.com/kingpinisroot/linux-performance-doctor"
+Issues = "https://github.com/kingpinisroot/linux-performance-doctor/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
