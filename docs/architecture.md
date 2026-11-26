@@ -1,31 +1,21 @@
 # Architecture Overview
 
-> **Repository Status:** This document captures the verified architectural foundation of **Linux Performance Doctor** prior to importing and reviewing the existing CLI implementation. Module-level APIs, exact CLI options, and JSON schemas will be documented here once the existing codebase is added.
+Linux Performance Doctor is a read-only Linux diagnostic CLI. The implementation separates system collection from deterministic diagnosis and presentation.
 
-## Core Design Boundary: Diagnosis Only
+## Components
 
-Linux Performance Doctor is strictly a **read-only diagnostic tool**. It observes and correlates system state without modifying the host:
+- `src/linux_performance_doctor/collectors.py` reads CPU and process counters, memory and swap data, filesystem capacity and inode usage, block-device counters, thermal sensors, and failed systemd service units. Collectors report `ok`, `partial`, or `unavailable` status with limitations when data is incomplete.
+- `src/linux_performance_doctor/cli.py` validates the `scan` command and interval, coordinates serial CPU/process and I/O sampling windows, assembles the report, and renders text or JSON.
+- `src/linux_performance_doctor/diagnose.py` applies deterministic thresholds to the collected values. Findings carry evidence, explanation, suggestion, impact, and uncertainty. Any non-`ok` module produces an `unknown` finding rather than a healthy result.
 
-- Does **not** alter system configuration.
-- Does **not** start, stop, or restart services.
-- Does **not** modify or delete files or processes.
-- Does **not** require privileged system modifications.
-- Treats missing or inaccessible telemetry transparently.
-- Reports partial results and collection limitations explicitly.
+## Data sources and safety boundary
 
-## Modular Collector Model
+The CLI reads `/proc`, `/sys`, and mount information. It invokes `systemctl` with a fixed environment and bounded output to query failed service units. It does not read journals, process command-line arguments, or environment variables; it does not write system state, control services, make network requests, or apply remediation.
 
-Rather than bundling all system checks into a monolithic script, diagnostics are organized into separate collectors per Linux subsystem:
+## Output and sampling
 
-- **CPU** — processor information and utilization
-- **RAM** — memory usage and available capacity
-- **Swap** — swap allocation and usage
-- **Filesystems** — disk capacity and filesystem information
-- **I/O** — block device and input/output activity
-- **Sensors** — available temperature and hardware sensor readings
-- **systemd** — state of system services
-- **Processes** — running processes and notable resource consumers
+Reports include schema version `1.1`, generation time, module statuses and limitations, measurements, and findings. `--json` emits the structured report. CPU/process counters are sampled over the selected interval, followed by a separate I/O sampling interval. The two windows are serial rather than concurrent.
 
-## Structured Output
+## Known limitations
 
-Collected telemetry is aggregated into structured diagnostic results, including machine-readable **JSON output** suitable for automation, scripting, and downstream analysis, alongside clear human-readable summaries.
+Readings depend on host permissions and available kernel, hardware, mount, and systemd interfaces. Missing data remains explicit. Short samples can miss transient behavior; device counters are not latency measurements, and process visibility can be restricted by containers or namespaces. The tool is a snapshot aid, not continuous monitoring or a complete root-cause analysis.

@@ -42,8 +42,9 @@ dev = [
   "pytest>=8.0",
 ]
 
-# NOTE: `[project.scripts]` will be wired to the verified CLI entry point
-# when the existing Linux Performance Doctor source code is imported.
+[project.scripts]
+lpdoctor = "linux_performance_doctor.cli:main"
+linux-performance-doctor = "linux_performance_doctor.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/kingpinisroot/linux-performance-doctor"
